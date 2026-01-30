@@ -1,56 +1,40 @@
-import { useEffect, useRef, useState } from "react";
-import Chart from "chart.js/auto";
+import { useEffect, useState } from "react";
 
-export default function Guild() {
-  const chartRef = useRef();
-  const [stats, setStats] = useState(null);
-
-  // TEMP: hardcode a guild ID for testing
-  const GUILD_ID = "PUT_GUILD_ID_HERE";
+export default function Guilds() {
+  const [guilds, setGuilds] = useState([]);
 
   useEffect(() => {
-    fetch(`https://uranium-backend-19yu.onrender.com/api/stats/${GUILD_ID}`)
-      .then(res => res.json())
+    fetch("https://api.lectos.net/auth/guilds", {
+      credentials: "include"
+    })
+      .then(r => r.json())
       .then(data => {
-        setStats(data);
-
-        new Chart(chartRef.current, {
-          type: "bar",
-          data: {
-            labels: data.chart.map(x => x.day),
-            datasets: [{
-              data: data.chart.map(x => x.total),
-              backgroundColor: "#4f46e5"
-            }]
-          },
-          options: {
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true } }
-          }
-        });
+        // admin-only guilds
+        setGuilds(data.filter(g => (g.permissions & 0x8) === 0x8));
       });
   }, []);
 
-  if (!stats) return <div style={{ padding: 40 }}>Loading...</div>;
-
   return (
     <div style={{ padding: 40, fontFamily: "Inter" }}>
-      <h2>Server Dashboard</h2>
+      <h2>Select a Server</h2>
 
-      <div style={{ display: "flex", gap: 40 }}>
-        <div>
-          <h4>Total Escrows</h4>
-          <b>{stats.total}</b>
-        </div>
-
-        <div>
-          <h4>Total Balance</h4>
-          <b>{stats.balance}</b>
-        </div>
-      </div>
-
-      <h3 style={{ marginTop: 40 }}>Balance (Last 7 Days)</h3>
-      <canvas ref={chartRef}></canvas>
+      {guilds.map(g => (
+        <a
+          key={g.id}
+          href={`/guild?guild=${g.id}`}
+          style={{
+            display: "block",
+            padding: 16,
+            marginBottom: 12,
+            background: "#111827",
+            color: "#fff",
+            borderRadius: 10,
+            textDecoration: "none"
+          }}
+        >
+          {g.name}
+        </a>
+      ))}
     </div>
   );
 }
