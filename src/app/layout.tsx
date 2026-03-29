@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import '@/styles/globals.css';
 import { ThemeProvider } from '@/lib/theme';
 import { AuthProvider } from '@/lib/auth';
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: 'Uranium Escrow',
